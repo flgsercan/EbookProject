@@ -109,4 +109,7 @@ dependencies {
 
     // jsoup HTML parser library @ https://jsoup.org/
     implementation 'org.jsoup:jsoup:1.15.4'
+
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.29.2-rc'
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.29.2-rc"
 }

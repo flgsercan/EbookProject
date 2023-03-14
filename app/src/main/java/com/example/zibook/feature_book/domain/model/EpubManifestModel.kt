@@ -5,7 +5,14 @@ package com.example.zibook.feature_book.domain.model
  *
  * @property resources List of all resources available in publication.
  */
-data class EpubManifestModel(val resources: List<EpubResourceModel>?)
+data class EpubManifestModel(val resources: List<EpubResourceModel>?) {
+
+    fun getById(id: String?): EpubResourceModel? {
+        return resources?.firstOrNull {
+            it.id == id
+        }
+    }
+}
 
 /**
  * Model of single publication resource.

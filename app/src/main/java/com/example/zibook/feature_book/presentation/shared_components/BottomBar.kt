@@ -16,6 +16,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,13 +26,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.aregyan.compose.R
 import com.example.zibook.feature_book.presentation.navigation.Screen
 
@@ -50,7 +49,7 @@ fun BottomBar(
 
     Box {
         var width by remember { mutableStateOf(0f) }
-        var currentIndex by remember { mutableStateOf(0) }
+        var currentIndex by rememberSaveable { mutableStateOf(0) }
         val offsetAnim by animateFloatAsState(
             targetValue = when (currentIndex) {
                 1 -> (width / 2f) - with(LocalDensity.current) { 50.dp.toPx() }
@@ -58,6 +57,7 @@ fun BottomBar(
                 else -> 0f
             }
         )
+
 
         BottomNavigation(
             backgroundColor = colorResource(id = R.color.main_dark),
@@ -170,9 +170,3 @@ fun ConditionalBottomBar(
         } )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AnimatedBottomNavigationItemPreview() {
-    val navController = rememberNavController()
-    //BottomBar(navController)
-}

@@ -3,10 +3,7 @@ package com.example.zibook.feature_book.presentation.shared_components
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
@@ -31,16 +28,12 @@ import com.example.zibook.feature_book.presentation.navigation.Screen
 
 @Composable
 
-fun CardCell(navController: NavController,book: Book) {
+fun CardCell(book: Book, modifier: Modifier = Modifier) {
 
     val cover = BitmapFactory.decodeFile(book.cover)
     val title = book.title
     Card(
-        modifier = Modifier
-            .width(180.dp)
-            .height(320.dp)
-            .padding(15.dp)
-            .clickable { navController.navigate(Screen.Details.route + "?bookId=${book.id}") },
+        modifier = modifier,
         backgroundColor = colorResource(id = R.color.main_light),
         elevation = 0.dp
     ) {
@@ -67,8 +60,8 @@ fun CardCell(navController: NavController,book: Book) {
 fun CellPreview() {
     Card(
         modifier = Modifier
-            .width(180.dp)
-            .height(320.dp)
+            .aspectRatio(1/2f)
+            .fillMaxSize()
             .padding(15.dp)
             .clickable { },
         backgroundColor = colorResource(id = R.color.main_light),

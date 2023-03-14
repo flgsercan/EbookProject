@@ -1,6 +1,6 @@
 package com.example.zibook
 
-import com.example.zibook.feature_book.domain.model.EbupSpineReferenceModel
+import com.example.zibook.feature_book.domain.model.EpubSpineReferenceModel
 import com.example.zibook.feature_book.domain.model.EpubSpineModel
 import com.example.zibook.EpubConstants.OPF_NAMESPACE
 import org.w3c.dom.Document
@@ -21,7 +21,7 @@ internal class EpubSpineParser {
                 val element = it as Element
                 val idReference = element.getAttribute(ID_REF_ATTR)
                 val isLinear = element.getAttribute(IS_LINEAR_ATTR) == IS_LINEAR_POSITIVE_VALUE
-                EbupSpineReferenceModel(idReference, isLinear)
+                EpubSpineReferenceModel(idReference, isLinear)
             }
         return EpubSpineModel(spineModel)
     }

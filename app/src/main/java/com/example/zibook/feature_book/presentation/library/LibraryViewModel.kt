@@ -29,8 +29,10 @@ class LibraryViewModel @Inject constructor(
 
     private var getBooksJob: Job? = null
 
+    private var lastItemId: Int = 0
+
     init {
-        getBooks(BookOrder.Title(OrderType.Descending))
+        getBooks(BookOrder.Title(OrderType.Descending), lastItemId)
     }
 
     fun onEvent(event: LibraryEvent) {
@@ -42,7 +44,7 @@ class LibraryViewModel @Inject constructor(
                 ) {
                     return
                 }
-                getBooks(event.bookOrder)
+                getBooks(event.bookOrder, lastItemId)
             }
             is LibraryEvent.DeleteBook -> {
                 viewModelScope.launch {
@@ -66,12 +68,17 @@ class LibraryViewModel @Inject constructor(
                         populateEpubList(documentUseCases, bookUseCases)
                     }
             }
+            is LibraryEvent.LoadBooksPaginated -> {
+                lastItemId = state.value.books.last().id ?: 0
+                getBooks(BookOrder.Title(OrderType.Descending), lastItemId)
+            }
         }
     }
 
-    private fun getBooks(bookOrder: BookOrder) {
+    private fun getBooks(bookOrder: BookOrder, lastItemId: Int) {
         getBooksJob?.cancel()
-        getBooksJob = bookUseCases.getBooks(bookOrder)
+        _state.value = _state.value.copy( isLoading = true)
+        getBooksJob = bookUseCases.getBooks(6,lastItemId)
             .onEach { books ->
                 _state.value = state.value.copy(
                     books = books,
@@ -79,5 +86,9 @@ class LibraryViewModel @Inject constructor(
                 )
             }
             .launchIn(viewModelScope)
+        getBooksJob!!.invokeOnCompletion { _state.value = _state.value.copy(
+            isLoading = false,
+            endReached = lastItemId >= state.value.books.last().id!!
+        ) }
     }
 }

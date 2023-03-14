@@ -50,10 +50,14 @@ object AppModule {
             addBook = AddBook(repository),
             getBookById = GetBookById(repository),
             getBookByPath = GetBookByPath(repository),
+            getTocs = GetTocs(repository),
             getToc = GetToc(repository),
-            getTocById = GetTocById(repository),
             deleteToc = DeleteToc(repository),
-            addToc = AddToc(repository)
+            addToc = AddToc(repository),
+            addSpineItem = AddSpineItem(repository),
+            getSpines = GetSpines(repository),
+            getSpine = GetSpine(repository),
+            deleteSpine = DeleteSpine(repository)
         )
     }
     @Provides

@@ -6,7 +6,8 @@ import com.aregyan.compose.R
 import com.example.zibook.EbookApp
 import com.example.zibook.ImageScalingUtility
 import com.example.zibook.feature_book.domain.model.Book
-import com.example.zibook.feature_book.domain.model.NavItem
+import com.example.zibook.feature_book.domain.model.SpineItem
+import com.example.zibook.feature_book.domain.model.TocItem
 import com.example.zibook.feature_book.domain.use_case.BookUseCases
 import com.example.zibook.feature_book.domain.use_case.DocumentUseCases
 import java.io.File
@@ -39,7 +40,7 @@ suspend fun populateEpubList (documentUseCases: DocumentUseCases, bookUseCases: 
         zipList.add(ZipFile(epub.path))
 
     }
-    coverList.forEach() {
+   /* coverList.forEach() {
         /*
         context.openFileOutput( (bookList[i].epubMetadataModel?.title ?: "notitle") + "/cover.png", MODE_PRIVATE).use { stream ->
             if (!it.compress(Bitmap.CompressFormat.PNG,100, stream)) {
@@ -48,7 +49,7 @@ suspend fun populateEpubList (documentUseCases: DocumentUseCases, bookUseCases: 
         }
          */
 
-    }
+    }*/
     var i = 0
     bookList.forEach { epub ->
         bookUseCases.addBook(Book(
@@ -56,20 +57,34 @@ suspend fun populateEpubList (documentUseCases: DocumentUseCases, bookUseCases: 
             epub.epubMetadataModel?.creators.toString(),
             epub.epubMetadataModel?.title ?: "notitle",
             epub.path ?: "nopath",
-            epub.epubOpfFilePath ?: "nopath"
+            "/storage/emulated/0/Testappdir/" + epub.epubMetadataModel?.title + "/" + epub.epubOpfFilePath
         ))
         documentUseCases.unzipDocument(zipList[i], "/storage/emulated/0/Testappdir/" +
                 (epub.epubMetadataModel?.title ?: "notitle") + "/")
 
         val id = epub.path?.let { bookUseCases.getBookByPath(it)?.id }
-        documentUseCases.getTocByPath(epub.path!!).forEach { model ->
+        documentUseCases.getTocByPath(epub.path!!)?.forEach { model ->
             bookUseCases.addToc(
-                NavItem(
+                TocItem(
                     id = model.id,
                     label = model.label,
-                    location = model.location,
+                    location = "/storage/emulated/0/Testappdir/" +
+                            epub.epubMetadataModel?.title + "/" +
+                            epub.epubOpfFilePath?.removeSuffix("content.opf") +
+                            model.location?.removePrefix("../"),
                     bookId = id
-            ))
+                ))
+        }
+        epub.sortedManifest?.resources?.forEach {
+            bookUseCases.addSpineItem(
+                SpineItem(
+                    location = "/storage/emulated/0/Testappdir/" +
+                            epub.epubMetadataModel?.title + "/" +
+                            epub.epubOpfFilePath?.removeSuffix("content.opf") +
+                            it.href,
+                    bookId = id
+                )
+            )
         }
         ++i
     }

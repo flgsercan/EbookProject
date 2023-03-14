@@ -10,9 +10,12 @@ import kotlinx.coroutines.flow.map
 class GetBooks(private val repository: BookRepository) {
 
     operator fun invoke(
+        limit: Int,
+        id: Int,
         bookOrder: BookOrder = BookOrder.Title(OrderType.Descending)
     ): Flow<List<Book>> {
-        return repository.getBooks().map { books ->
+        return repository.getBooks(limit, id)
+            .map { books ->
             when(bookOrder.orderType) {
                 is OrderType.Ascending -> {
                     when(bookOrder) {
@@ -22,7 +25,7 @@ class GetBooks(private val repository: BookRepository) {
                 }
                 is OrderType.Descending -> {
                     when(bookOrder) {
-                        is BookOrder.Title -> books.sortedByDescending { it.title.lowercase() }
+                        is BookOrder.Title -> books.sortedBy { it.id }
                         is BookOrder.Author -> books.sortedByDescending { it.author.lowercase() }
                     }
                 }

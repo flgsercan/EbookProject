@@ -28,7 +28,7 @@ internal class Epub2TableOfContentsParser : EpubTableOfContentsParser() {
             }
             ?.childNodes.forEach {
                 if (it.isNavPoint()) {
-                    tableOfContentsReferences.add(createNavigationItemModel(it))
+                    createNavigationItemModel(it).forEach { navItem ->  tableOfContentsReferences.add(navItem) }
                 } else {
                     orValidationError {
                         validationListeners?.onAttributeMissing(TABLE_OF_CONTENTS_TAG, NAV_POINT_TAG)
@@ -40,8 +40,9 @@ internal class Epub2TableOfContentsParser : EpubTableOfContentsParser() {
 
     override fun createNavigationItemModel(
         node: Node,
-    ): NavigationItemModel {
+    ): List<NavigationItemModel> {
         val element = node as Element
+        val navItems = mutableListOf<NavigationItemModel>()
 
         val id = element.getAttribute(ID_ATTR)
             .orNullIfEmpty()
@@ -66,10 +67,11 @@ internal class Epub2TableOfContentsParser : EpubTableOfContentsParser() {
             .orValidationError {
                 validationListeners?.onAttributeMissing(TABLE_OF_CONTENTS_TAG, SRC_ATTR)
             }
-        val subItems = createNavigationSubItemModel(element.childNodes)
+        navItems.add(NavigationItemModel(id, label, source))
+        createNavigationSubItemModel(element.childNodes).forEach { navItems.add(it) }
 
 
-        return NavigationItemModel(id, label, source, subItems)
+        return navItems
     }
 
     override fun createNavigationSubItemModel(childrenNodes: NodeList?): List<NavigationItemModel> {
@@ -77,7 +79,7 @@ internal class Epub2TableOfContentsParser : EpubTableOfContentsParser() {
         childrenNodes?.forEach {
             if (it.isNavPoint()) {
                 createNavigationItemModel(it).let { navigationItem ->
-                    navSubItems.add(navigationItem)
+                    navigationItem.forEach { navItem -> navSubItems.add(navItem) }
                 }
             }
         }

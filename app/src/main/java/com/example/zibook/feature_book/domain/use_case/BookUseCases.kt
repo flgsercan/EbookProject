@@ -6,8 +6,12 @@ data class BookUseCases(
     val addBook: AddBook,
     val getBookById: GetBookById,
     val getBookByPath: GetBookByPath,
-    val getToc: GetToc,
+    val getTocs: GetTocs,
     val deleteToc: DeleteToc,
-    val getTocById: GetTocById,
-    val addToc: AddToc
+    val getToc: GetToc,
+    val addToc: AddToc,
+    val addSpineItem: AddSpineItem,
+    val getSpine: GetSpine,
+    val getSpines: GetSpines,
+    val deleteSpine: DeleteSpine
 )

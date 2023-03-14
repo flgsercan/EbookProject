@@ -7,9 +7,10 @@ data class EpubBook(
     val epubCoverImage: EpubResourceModel? = null,
     val epubMetadataModel: EpubMetadataModel? = null,
     val epubManifestModel: EpubManifestModel? = null,
+    val sortedManifest: EpubManifestModel? = null,
     val epubSpineModel: EpubSpineModel? = null,
     val epubTableOfContentsModel: EpubTableOfContentsModel? = null,
-    val id : Int? = idCounter()
+    val id: Int? = idCounter()
 
 )
 var idCount = 0

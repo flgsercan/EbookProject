@@ -9,4 +9,5 @@ sealed class LibraryEvent {
     object RestoreBook: LibraryEvent()
     object ToggleOrderSection: LibraryEvent()
     object ScanForBooks: LibraryEvent()
+    object LoadBooksPaginated: LibraryEvent()
 }

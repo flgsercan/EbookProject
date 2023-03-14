@@ -1,6 +1,8 @@
 package com.example.zibook
 
 import com.example.zibook.feature_book.domain.model.EpubBook
+import com.example.zibook.feature_book.domain.model.EpubManifestModel
+import com.example.zibook.feature_book.domain.model.EpubResourceModel
 import java.io.InputStream
 
 /**
@@ -76,6 +78,19 @@ class EpubParser() {
             epubManifestModel,
             epubMetadataModel.getEpubSpecificationMajorVersion()
         )
+        val toc =  tocParserFactory.getTableOfContentsParser(
+            epubMetadataModel.getEpubSpecificationMajorVersion()
+        )
+            .parse(tocDocument, validationListeners, entries)
+
+        val spine = spineParser.parse(mainOpfDocument, validationListeners)
+
+        val sortedManifestList = mutableListOf<EpubResourceModel>()
+
+        spine.orderedReferences?.forEach {
+            epubManifestModel.getById(it.idReference)?.let { resource -> sortedManifestList.add(resource) }
+        }
+        val sortedManifest = EpubManifestModel(sortedManifestList.toList())
 
         return EpubBook(
             path,
@@ -84,11 +99,9 @@ class EpubParser() {
             epubCoverHandler.getCoverImageFromManifest(epubManifestModel),
             epubMetadataModel,
             epubManifestModel,
-            spineParser.parse(mainOpfDocument, validationListeners),
-            tocParserFactory.getTableOfContentsParser(
-                epubMetadataModel.getEpubSpecificationMajorVersion()
-            )
-                .parse(tocDocument, validationListeners, entries)
+            sortedManifest,
+            spine,
+           toc
         )
     }
 

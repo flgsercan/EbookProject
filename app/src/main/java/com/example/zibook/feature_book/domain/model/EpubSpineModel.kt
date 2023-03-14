@@ -5,7 +5,7 @@ package com.example.zibook.feature_book.domain.model
  *
  * @property orderedReferences List of elements in reading order
  */
-data class EpubSpineModel(val orderedReferences: List<EbupSpineReferenceModel>? = null)
+data class EpubSpineModel(val orderedReferences: List<EpubSpineReferenceModel>? = null)
 
 /**
  * Model of spine element.
@@ -13,4 +13,4 @@ data class EpubSpineModel(val orderedReferences: List<EbupSpineReferenceModel>? 
  * @property idReference Manifest id of element.
  * @property linear Specifies if element content is primary.
  */
-data class EbupSpineReferenceModel(val idReference: String, val linear: Boolean = false)
+data class EpubSpineReferenceModel(val idReference: String, val linear: Boolean = false)

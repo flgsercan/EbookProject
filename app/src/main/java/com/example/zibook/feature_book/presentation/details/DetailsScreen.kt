@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,19 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.zibook.feature_book.domain.model.NavigationItemModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.zibook.feature_book.presentation.navigation.Screen
 import com.maximillianleonov.blurimage.BlurImage
 import com.aregyan.compose.R
@@ -41,49 +40,43 @@ fun DetailsScreen(
     viewModel: DetailsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-    val toc = state.navItemList
-    val cover =  if (state.book != null)
-        BitmapFactory.decodeFile(state.book.cover)
-    else
-        BitmapFactory.decodeFile("/storage/emulated/0/Testappdir/The Author's POV/cover.png")
-
-    val title = if (state.book != null) state.book.title else "Title"
-    val author = if (state.book != null) state.book.author else "Author"
-    val chapterPath = if (state.book != null)
-        "/storage/emulated/0/Testappdir/"  + state.book.title + "/" + state.book.opfPath.removeSuffix("content.opf")
-    else
-        "/no/path/"
+    val toc = state.tocItemList
 
 
 
-    BlurImage(data =  cover,
-        contentDescription ="",
-        modifier = Modifier
-            .fillMaxHeight(0.7f)
-            .fillMaxWidth(),
-        contentScale = ContentScale.Crop,
-        blurRadius = 20
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.Black
-                    ),
-                    startY = 10f,
-                    endY = 600f
+
+
+    if(state.book != null) {
+
+        val cover = state.book.cover
+        val bookId = state.book.id
+        val title = state.book.title
+        val author = state.book.author
+
+        BlurImage(data =  cover,
+            contentDescription ="",
+            modifier = Modifier
+                .fillMaxHeight(0.7f)
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop,
+            blurRadius = 20
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black
+                        ),
+                        startY = 10f,
+                        endY = 600f
+                    )
                 )
-            )
-    )
+        )
 
-
-    
-    
-    
-        
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.Start
@@ -121,12 +114,13 @@ fun DetailsScreen(
                     }
                     Spacer(modifier = Modifier.padding(20.dp))
 
-                    Image(
-                        bitmap = cover.asImageBitmap(),
-                        contentDescription = "",
+                    AsyncImage(model = ImageRequest.Builder(
+                        LocalContext.current)
+                        .data(cover)
+                        .placeholder(R.drawable.cover2)
+                        .build() , contentDescription ="Cover",
                         modifier = Modifier
-                            .clip(RoundedCornerShape(5.dp))
-                    )
+                            .clip(RoundedCornerShape(5.dp)))
 
                     Text(
                         text =  title,
@@ -169,20 +163,10 @@ fun DetailsScreen(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(25.dp)
+                            .wrapContentHeight()
                             .clickable {
                                 navController.navigate(
-                                    Screen.Reader.route +
-                                            "?chapterPath=${
-                                                chapterPath +
-                                                        if (
-                                                            model.location!!
-                                                                .contains("../")
-                                                        )
-                                                            model.location.removePrefix("../")
-                                                        else
-                                                            model.location
-                                            }"
+                                    Screen.Reader.route + "?bookId=${bookId}&chapterUrl=${model.location}"
                                 )
                             },
                         text = model.label!!,
@@ -191,111 +175,25 @@ fun DetailsScreen(
                     )
                 }
             }
-            item { 
+            item {
                 Spacer(modifier = Modifier.padding(50.dp))
             }
         }
-
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            colorResource(id = R.color.accent),
+                            Color.Black
+                        ),
+                        startY = 10f,
+                        endY = 600f
+                    )
+                )
+        )
+    }
     
 }
-
-@Preview (showBackground = true)
-@Composable
-fun DetailPreview() {
-
-    val image: Painter = painterResource(id = R.drawable.cover2)
-    BlurImage(data =  R.drawable.cover2,
-        contentDescription ="",
-        modifier = Modifier
-            .fillMaxSize(),
-        contentScale = ContentScale.FillHeight,
-        blurRadius = 10
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.Black
-                    ),
-                    startY = 50f,
-                    endY = 1100f
-                )
-            )
-    )
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.padding(20.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(onClick = { /*TODO*/ }) {
-
-            }
-            Button(onClick = { /*TODO*/ }) {
-
-            }
-        }
-        Image(
-            painter = image,
-            contentDescription = "",
-            modifier = Modifier
-                .clip(RoundedCornerShape(5.dp))
-        )
-
-            Text(
-                text =  "Title",
-
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFFB3B3B3),
-                fontSize = 20.sp
-            )
-
-
-            Text(
-                text = "Author",
-                fontFamily = FontFamily.SansSerif,
-                fontWeight = FontWeight.Normal,
-                color = Color(0xFFB3B3B3),
-                fontSize = 15.sp
-            )
-
-        Row(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column() {
-
-            }
-            Column() {
-
-            }
-            Column() {
-
-            }
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Text(
-                text = "404",
-                color = Color(0xFFB3B3B3)
-                )
-        }
-        val toc = listOf<String>("agu","bugu","hede", "hödö")
-        LazyColumn() {
-            items(toc) { model ->
-                 Text(
-                     text = model,
-                     color = Color(0xFFB3B3B3)
-                 )
-            }
-        }
-    }
-}
-

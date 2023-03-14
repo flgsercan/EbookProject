@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,6 +19,7 @@ import com.example.zibook.feature_book.presentation.home.HomeScreen
 import com.example.zibook.feature_book.presentation.navigation.Navigation
 import com.example.zibook.feature_book.presentation.shared_components.BottomBar
 import com.example.zibook.feature_book.presentation.shared_components.ComposablePermission
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,7 +28,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestPermissions()
         setContent {
-            MainScreen(this.applicationContext)
+            MainScreen()
         }
 
     }
@@ -53,10 +55,11 @@ class MainActivity : ComponentActivity() {
 
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen(context: Context) {
-    val navController = rememberNavController()
+fun MainScreen() {
+    val navController = rememberAnimatedNavController()
     ComposablePermission(Manifest.permission.READ_EXTERNAL_STORAGE, onDenied = {}, onGranted = {})
     Navigation(navController)
 }

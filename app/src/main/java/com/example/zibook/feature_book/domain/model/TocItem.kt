@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 
 
 @Entity(tableName = "toc")
-data class NavItem(
+data class TocItem(
     val id: String? = null,
     val label: String? = null,
     val location: String? = null,
     val bookId:Int? = null,
-    @PrimaryKey val NavId : Int? = null
+    @PrimaryKey val tocId : Int? = null
 )

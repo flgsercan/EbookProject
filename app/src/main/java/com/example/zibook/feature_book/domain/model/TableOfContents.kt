@@ -7,6 +7,7 @@ package com.example.zibook.feature_book.domain.model
  */
 data class EpubTableOfContentsModel(val tableOfContents: List<NavigationItemModel>)
 
+
 /**
  * Model of table of contents item.
  *
@@ -19,5 +20,4 @@ data class NavigationItemModel(
     val id: String? = null,
     val label: String? = null,
     val location: String? = null,
-    val subItems: List<NavigationItemModel>? = null,
 )

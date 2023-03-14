@@ -33,7 +33,7 @@ internal class Epub3TableOfContentsParser : EpubTableOfContentsParser() {
             }
             ?.childNodes.forEach {
                 if (it.isNavPoint()) {
-                    tableOfContentsReferences.add(createNavigationItemModel(it))
+                    createNavigationItemModel(it).forEach { navItem ->  tableOfContentsReferences.add(navItem) }
                 } else {
                     orValidationError {
                         validationListeners?.onAttributeMissing(TABLE_OF_CONTENTS_TAG, NAV_POINT_TAG)
@@ -44,7 +44,8 @@ internal class Epub3TableOfContentsParser : EpubTableOfContentsParser() {
         return EpubTableOfContentsModel(tableOfContentsReferences)
     }
 
-    override fun createNavigationItemModel(node: Node): NavigationItemModel {
+    override fun createNavigationItemModel(node: Node): List<NavigationItemModel> {
+        val navItems = mutableListOf<NavigationItemModel>()
         val ref = (node as Element).getFirstElementByTag(A_TAG)
         val label = ref?.textContent
             ?.orNullIfEmpty()
@@ -56,9 +57,10 @@ internal class Epub3TableOfContentsParser : EpubTableOfContentsParser() {
             .orValidationError {
                 validationListeners?.onAttributeMissing(HREF_ATTR, TABLE_OF_CONTENTS_TAG)
             }
-        val subItems = createNavigationSubItemModel(node.getFirstElementByTag(OL_TAG)?.childNodes)
+        navItems.add(NavigationItemModel(null, label, source))
+        createNavigationSubItemModel(node.getFirstElementByTag(OL_TAG)?.childNodes).forEach { navItems.add(it) }
 
-        return NavigationItemModel(null, label, source, subItems)
+        return navItems
     }
 
     override fun createNavigationSubItemModel(childrenNodes: NodeList?): List<NavigationItemModel> {
@@ -66,7 +68,7 @@ internal class Epub3TableOfContentsParser : EpubTableOfContentsParser() {
         childrenNodes?.forEach {
             if (it.isNavPoint()) {
                 createNavigationItemModel(it).let { navigationItem ->
-                    navSubItems.add(navigationItem)
+                    navigationItem.forEach { navItem -> navSubItems.add(navItem) }
                 }
             }
         }

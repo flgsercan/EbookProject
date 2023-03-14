@@ -6,12 +6,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zibook.feature_book.domain.use_case.BookUseCases
-import com.example.zibook.feature_book.domain.use_case.DocumentUseCases
-import com.example.zibook.feature_book.domain.util.BookOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -20,7 +16,6 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val bookUseCases: BookUseCases,
-    private val documentUseCases: DocumentUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = mutableStateOf(DetailsState())
@@ -46,10 +41,10 @@ class DetailsViewModel @Inject constructor(
 
     private fun getToc(bookId: Int) {
         getBooksJob?.cancel()
-        getBooksJob = bookUseCases.getToc(bookId)
+        getBooksJob = bookUseCases.getTocs(bookId)
             .onEach {  navItemList ->
                 _state.value = state.value.copy(
-                    navItemList = navItemList
+                    tocItemList = navItemList
                 )
             }
             .launchIn(viewModelScope)
