@@ -11,7 +11,7 @@ class GetBooks(private val repository: BookRepository) {
 
     operator fun invoke(
         limit: Int,
-        id: Int,
+        id: Long,
         bookOrder: BookOrder = BookOrder.Title(OrderType.Descending)
     ): Flow<List<Book>> {
         return repository.getBooks(limit, id)

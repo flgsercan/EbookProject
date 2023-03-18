@@ -10,16 +10,16 @@ import kotlinx.coroutines.flow.Flow
 class BookRepositoryImpl(
     private val dao: BookDao
 ) : BookRepository {
-    override fun getBooks(limit: Int, id: Int): Flow<List<Book>> {
+    override fun getBooks(limit: Int, id: Long): Flow<List<Book>> {
         return dao.getBooks(limit, id)
     }
 
-    override suspend fun getBookById(id: Int): Book? {
+    override suspend fun getBookById(id: Long): Book? {
         return dao.getBookById(id)
     }
 
-    override suspend fun insertBook(book: Book) {
-        dao.insertBook(book)
+    override suspend fun insertBook(book: Book): Long {
+        return dao.insertBook(book)
     }
 
     override suspend fun deleteBook(book: Book) {
@@ -30,11 +30,11 @@ class BookRepositoryImpl(
         return dao.getBookByPath(path)
     }
 
-    override fun getToc(bookId: Int): Flow<List<TocItem>> {
+    override fun getToc(bookId: Long): Flow<List<TocItem>> {
         return dao.getToc(bookId)
     }
 
-    override suspend fun getTocById(id: Int): TocItem? {
+    override suspend fun getTocById(id: Long): TocItem? {
         return dao.getTocById(id)
     }
 
@@ -42,23 +42,23 @@ class BookRepositoryImpl(
         return dao.getTocByUrl(url)
     }
 
-    override suspend fun insertToc(tocItem: TocItem) {
-        dao.insertToc(tocItem)
+    override suspend fun insertToc(tocItem: TocItem): Long {
+        return dao.insertToc(tocItem)
     }
 
     override suspend fun deleteToc(tocItem: TocItem) {
         dao.deleteToc(tocItem)
     }
 
-    override suspend fun insertSpine(spineItem: SpineItem) {
-        dao.insertSpine(spineItem)
+    override suspend fun insertSpine(spineItem: SpineItem): Long {
+        return dao.insertSpine(spineItem)
     }
 
-    override fun getSpine(bookId: Int): Flow<List<SpineItem>> {
-        return dao.getSpine(bookId)
+    override fun getSpine(bookId: Long, tocId: Long): Flow<List<SpineItem>> {
+        return dao.getSpine(bookId, tocId)
     }
 
-    override suspend fun getSpineById(id: Int): SpineItem? {
+    override suspend fun getSpineById(id: Long): SpineItem? {
         return dao.getSpineById(id)
     }
     override suspend fun getSpineByUrl(url : String): SpineItem? {

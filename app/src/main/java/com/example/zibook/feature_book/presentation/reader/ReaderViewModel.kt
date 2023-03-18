@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zibook.feature_book.domain.model.SpineItem
 import com.example.zibook.feature_book.domain.use_case.BookUseCases
+import com.example.zibook.feature_book.domain.util.BookOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -24,164 +26,68 @@ class ReaderViewModel @Inject constructor(
 
     private val _state = mutableStateOf(ReaderState())
     val state : State<ReaderState> = _state
-
+    private var getChapterJob: Job? = null
 
     init {
-        savedStateHandle.get<Int>("bookId")?.let { bookId ->
-            if (bookId != -1) {
-                val chapterUrl = savedStateHandle.get<String>("chapterUrl")
-                val chapterParts = mutableListOf<SpineItem>()
-                viewModelScope.launch {
-                    if (chapterUrl != null) {
-                        var nextChapterUrl: String?
-                        val currentChapterId = bookUseCases.getToc(chapterUrl)!!.tocId!!
-                        bookUseCases.getToc(currentChapterId + 1)?.location.let { nextChapterUrl = it }
-                        if (nextChapterUrl != null) {
-                            var i = 1
-                            chapterParts.add(bookUseCases.getSpine(chapterUrl)!!)
-                            while (
-                                    bookUseCases.getSpine(chapterParts[0].spineId!!.plus(i))!!.location != nextChapterUrl &&
-                                    bookUseCases.getSpine(chapterParts[0].spineId!!.plus(i))!!.bookId == bookId
-                                    ) {
-                                chapterParts.add(bookUseCases.getSpine(chapterParts[0].spineId!!.plus(i))!!)
-                                i++
-                            }
-                            val output = mutableListOf<Output>()
-                            chapterParts.forEach {  spineItem ->
-                                if (File(spineItem.location!!).exists()) {
-                                    output.add(EpubXMLFileParser(File(spineItem.location).readBytes()).parse())
-                                }
-                            }
-                            val body = mutableListOf<String>()
-                            output.forEach {
-                                it.body.forEach { string ->
-                                    body.add(string)
-                                }
-                            }
-                            val finalOutput = Output(
-                                title = output[0].title,
-                                body = body.toList()
-                            )
-                            _state.value = _state.value.copy(
-                                data = finalOutput,
-                                currentChapterId = currentChapterId,
-                                book = bookUseCases.getBookById(bookId)
-                            )
-                        }
-
+        savedStateHandle.get<Long>("bookId")?.let { bookId ->
+            savedStateHandle.get<Long>("chapterId")?.let {chapterId ->
+                if (bookId != -1L) {
+                    if (chapterId != -1L) {
+                        getChapter(bookId, chapterId)
                     }
                 }
-
-
             }
+
         }
     }
 
     fun onEvent(event: ReaderEvent) {
         when(event) {
             is ReaderEvent.NextChapter -> {
-                viewModelScope.launch {
-                    val id = state.value.currentChapterId!!
-                    val bookId = state.value.book!!.id!!
-                    var nextChapterUrl: String?
-                    val chapterParts = mutableListOf<SpineItem>()
-                    val query = bookUseCases.getToc(id.plus(1))
-                    if (query != null && query.bookId == bookId) {
-                        val chapterUrl = query.location
-                        bookUseCases.getToc(query.tocId!! + 1)?.location.let { nextChapterUrl = it }
-                        if (nextChapterUrl != null) {
-                            var i = 1
-                            chapterParts.add(chapterUrl?.let { bookUseCases.getSpine(it) }!!)
-                            while (
-                                bookUseCases.getSpine(chapterParts[0].spineId!!.plus(i))!!.location != nextChapterUrl &&
-                                bookUseCases.getSpine(chapterParts[0].spineId!!.plus(i))!!.bookId == bookId
-                            ) {
-                                chapterParts.add(
-                                    bookUseCases.getSpine(
-                                        chapterParts[0].spineId!!.plus(
-                                            i
-                                        )
-                                    )!!
-                                )
-                                i++
-                            }
-                            val output = mutableListOf<Output>()
-                            chapterParts.forEach {  spineItem ->
-                                if (File(spineItem.location!!).exists()) {
-                                    output.add(EpubXMLFileParser(File(spineItem.location).readBytes()).parse())
-                                }
-                            }
-                            val body = mutableListOf<String>()
-                            output.forEach {
-                                it.body.forEach { string ->
-                                    body.add(string)
-                                }
-                            }
-                            val finalOutput = Output(
-                                title = output[0].title,
-                                body = body.toList()
-                            )
-                            _state.value = _state.value.copy(
-                                currentChapterId = id + 1,
-                                data = finalOutput
-                            )
-                        }
-                    }
-                }
+                getChapter(state.value.book?.id!!, state.value.tocId!! + 1)
             }
             is ReaderEvent.PreviousChapter -> {
-                viewModelScope.launch {
-                    val id = state.value.currentChapterId!!
-                    val bookId = state.value.book!!.id!!
-                    var nextChapterUrl: String?
-                    val chapterParts = mutableListOf<SpineItem>()
-                    val query = bookUseCases.getToc(id.minus(1))
-                    if (query != null && query.bookId == bookId) {
-                        val chapterUrl = query.location
-                        bookUseCases.getToc(query.tocId!! + 1)?.location.let { nextChapterUrl = it }
-                        if (nextChapterUrl != null) {
-                            var i = 1
-                            chapterParts.add(chapterUrl?.let { bookUseCases.getSpine(it) }!!)
-                            while (
-                                bookUseCases.getSpine(chapterParts[0].spineId!!.plus(i))!!.location != nextChapterUrl &&
-                                bookUseCases.getSpine(chapterParts[0].spineId!!.plus(i))!!.bookId == bookId
-                            ) {
-                                chapterParts.add(
-                                    bookUseCases.getSpine(
-                                        chapterParts[0].spineId!!.plus(
-                                            i
-                                        )
-                                    )!!
-                                )
-                                i++
-                            }
-                            val output = mutableListOf<Output>()
-                            chapterParts.forEach {  spineItem ->
-                                if (File(spineItem.location!!).exists()) {
-                                    output.add(EpubXMLFileParser(File(spineItem.location).readBytes()).parse())
-                                }
-                            }
-                            val body = mutableListOf<String>()
-                            output.forEach {
-                                it.body.forEach { string ->
-                                    body.add(string)
-                                }
-                            }
-                            val finalOutput = Output(
-                                title = output[0].title,
-                                body = body.toList()
-                            )
-                            _state.value = _state.value.copy(
-                                currentChapterId = id + 1,
-                                data = finalOutput
-                            )
-                        }
-                    }
-                }
+                getChapter(state.value.book?.id!!, state.value.tocId!! -1)
             }
         }
     }
 
+    private fun getChapter(bookId: Long, tocId: Long) {
+        getChapterJob?.cancel()
+        getChapterJob = bookUseCases.getSpines(bookId, tocId).onEach {
+            var body = mutableListOf<String>()
+            val data: Output
+            if (it.isNotEmpty()) {
+                it.forEach {
+                    if (File(it.location).exists()) {
+                        val output = EpubXMLFileParser(File(it.location).readBytes()).parse()
+                        body = body.plus(output.body) as MutableList<String>
+                    }
+                    else {
+                        body.add("THERE IS A PROBLEM... ${it.location}")
+                    }
+                }
+                    data = Output(
+                    title = EpubXMLFileParser(File(it[0].location).readBytes()).parse().title,
+                    body = body.toList()
+                )
+            } else {
+                body.add("THIS SHIT IS EMPTY...")
+                data = Output(
+                    title = "Problem",
+                    body = body.toList()
+                )
+            }
+
+            _state.value = state.value.copy(
+                data = data,
+                book = bookUseCases.getBookById(bookId),
+                tocId = tocId,
+                location = it[0].location
+            )
+        }
+            .launchIn(viewModelScope)
+    }
     private class EpubXMLFileParser(
         val data: ByteArray
     ) {

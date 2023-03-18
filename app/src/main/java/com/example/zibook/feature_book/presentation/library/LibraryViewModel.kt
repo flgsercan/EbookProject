@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.zibook.feature_book.data.data_source.populateEpubList
+import com.example.zibook.feature_book.data.util.populateEpubList
 import com.example.zibook.feature_book.domain.model.Book
 import com.example.zibook.feature_book.domain.use_case.BookUseCases
 import com.example.zibook.feature_book.domain.use_case.DocumentUseCases
@@ -29,7 +29,7 @@ class LibraryViewModel @Inject constructor(
 
     private var getBooksJob: Job? = null
 
-    private var lastItemId: Int = 0
+    private var lastItemId: Long = 0L
 
     init {
         getBooks(BookOrder.Title(OrderType.Descending), lastItemId)
@@ -69,13 +69,13 @@ class LibraryViewModel @Inject constructor(
                     }
             }
             is LibraryEvent.LoadBooksPaginated -> {
-                lastItemId = state.value.books.last().id ?: 0
+                lastItemId = state.value.books.last().id ?: 0L
                 getBooks(BookOrder.Title(OrderType.Descending), lastItemId)
             }
         }
     }
 
-    private fun getBooks(bookOrder: BookOrder, lastItemId: Int) {
+    private fun getBooks(bookOrder: BookOrder, lastItemId: Long) {
         getBooksJob?.cancel()
         _state.value = _state.value.copy( isLoading = true)
         getBooksJob = bookUseCases.getBooks(6,lastItemId)

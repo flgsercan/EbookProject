@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 class GetTocs(
     private val repository: BookRepository
 ) {
-    operator fun invoke(bookId: Int): Flow<List<TocItem>> {
+    operator fun invoke(bookId: Long): Flow<List<TocItem>> {
         return repository.getToc(bookId)
     }
 }

@@ -8,5 +8,6 @@ data class DetailsState(
     val book: Book? = null,
     val epubFile: EpubBook? = null,
     val tocItemList: List<TocItem>? = null,
-    val tocItem: TocItem? = null
+    val tocItem: TocItem? = null,
+    val hover: String = "nll"
 )

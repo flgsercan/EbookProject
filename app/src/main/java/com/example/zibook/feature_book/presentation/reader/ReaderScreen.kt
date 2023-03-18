@@ -5,15 +5,19 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -25,12 +29,15 @@ import coil.request.ImageRequest
 import com.aregyan.compose.R
 import com.example.zibook.MainDark
 import com.example.zibook.MainLight
+import kotlinx.coroutines.launch
 
 @Composable
 fun ReaderScreen(viewModel: ReaderViewModel = hiltViewModel()) {
 
     val state = viewModel.state.value
     val data = state.data
+    val scrollState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     var bottomBarState by remember {
         mutableStateOf(true)
@@ -65,20 +72,31 @@ fun ReaderScreen(viewModel: ReaderViewModel = hiltViewModel()) {
                                .fillMaxWidth()
                                .fillMaxHeight()
                                .padding(5.dp)
-                               .noRippleClickable {
-                                   bottomBarState = !bottomBarState
+                               .pointerInput(Unit) {
+                                   detectTapGestures(
+                                       onTap = { tap ->
+                                           val offsetY = tap.y - (size.height / 2)
+                                           val offsetX = tap.x - (size.width / 2)
+                                           when {
+                                               offsetY > -3 * (size.height / 10) && offsetY < 3 * (size.height / 10) -> {
+                                                   //Bottom Half
+                                                   bottomBarState = !bottomBarState
+                                               }
+                                               else -> {}
+                                           }
+                                       }
+                                   )
                                }
-                               .fillMaxHeight(0.91f)
-                               .fillMaxWidth(0.95f)
-                               .align(CenterHorizontally)
                        ) {
                            item {
                                data.title?.let {
-                                   Text(
-                                       text = it,
-                                       fontSize = 25.sp,
-                                       color = MainDark
-                                   )
+                                   SelectionContainer() {
+                                       Text(
+                                           text = it,
+                                           fontSize = 25.sp,
+                                           color = MainDark
+                                       )
+                                   }
                                }
                            }
 
@@ -96,14 +114,15 @@ fun ReaderScreen(viewModel: ReaderViewModel = hiltViewModel()) {
                                            .build() , contentDescription ="image content",
                                            modifier = Modifier
                                                .fillMaxWidth())
-                                       Text(state.book.opfPath.removeSuffix("content.opf") + data.body[it].removePrefix("//image=../"))
                                    }
 
-                                   else -> Text(
-                                       text = data.body[it],
-                                       fontSize = 20.sp,
-                                       color = MainDark
-                                   )
+                                   else -> SelectionContainer() {
+                                       Text(
+                                           text = data.body[it],
+                                           fontSize = 20.sp,
+                                           color = MainDark
+                                       )
+                                   }
                                }
                            }
                        }
@@ -161,6 +180,7 @@ fun ReaderBottomBar(
                     tint = colorResource(id = R.color.main_light)
                 )
             }
+
             IconButton(onClick = { viewModel.onEvent(ReaderEvent.NextChapter) }) {
                 Icon(
                     painter = painterResource(
@@ -173,3 +193,4 @@ fun ReaderBottomBar(
         }
     }
 }
+

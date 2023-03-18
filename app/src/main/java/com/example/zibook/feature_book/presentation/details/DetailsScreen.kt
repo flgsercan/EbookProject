@@ -2,15 +2,13 @@ package com.example.zibook.feature_book.presentation.details
 
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,7 +30,11 @@ import coil.request.ImageRequest
 import com.example.zibook.feature_book.presentation.navigation.Screen
 import com.maximillianleonov.blurimage.BlurImage
 import com.aregyan.compose.R
+import com.example.zibook.Accent
+import com.example.zibook.feature_book.domain.use_case.BookUseCases
+import kotlinx.coroutines.flow.onEach
 
+@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun DetailsScreen(
@@ -41,7 +43,9 @@ fun DetailsScreen(
 ) {
     val state = viewModel.state.value
     val toc = state.tocItemList
-
+    var hoverMessage by remember {
+        mutableStateOf("null")
+    }
 
 
 
@@ -145,6 +149,17 @@ fun DetailsScreen(
                         }
                         Column() {
 
+                            Text(
+                                text = state.hover,
+                                color = Accent,
+                                fontSize = 10.sp
+                            )
+                            Text(
+                                text = hoverMessage,
+                                color = Accent,
+                                fontSize = 10.sp
+                            )
+
                         }
                         Column() {
 
@@ -164,11 +179,19 @@ fun DetailsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            .clickable {
-                                navController.navigate(
-                                    Screen.Reader.route + "?bookId=${bookId}&chapterUrl=${model.location}"
-                                )
-                            },
+                            .combinedClickable(
+                                onClick = {
+                                    navController.navigate(
+                                        Screen.Reader.route + "?bookId=${bookId}&chapterId=${model.tocId}"
+                                    )
+                                },
+                                onLongClick = {
+                                    viewModel.debug(bookId!!, model.tocId!!)
+                                },
+                                onDoubleClick = {
+                                    hoverMessage = "?bookId=${bookId}&chapterId=${model.tocId}"
+                                }
+                            ),
                         text = model.label!!,
                         color = Color(0xFFB3B3B3),
                         fontSize = 15.sp

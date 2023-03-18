@@ -9,7 +9,7 @@ class AddSpineItem(
     private val repository: BookRepository
 ) {
 
-    suspend operator fun invoke(spineItem: SpineItem) {
-        repository.insertSpine(spineItem)
+    suspend operator fun invoke(spineItem: SpineItem): Long {
+        return repository.insertSpine(spineItem)
     }
 }

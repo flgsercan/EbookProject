@@ -11,6 +11,6 @@ data class Book (
     val title : String,
     val path : String,
     val opfPath: String,
-    @PrimaryKey val id : Int? = null
+    @PrimaryKey val id : Long? = null
 
 )

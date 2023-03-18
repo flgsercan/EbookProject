@@ -8,7 +8,7 @@ class AddBook(
     private val repository: BookRepository
 ) {
 
-    suspend operator fun invoke(book: Book) {
-        repository.insertBook(book)
+    suspend operator fun invoke(book: Book): Long {
+        return repository.insertBook(book)
     }
 }

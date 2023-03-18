@@ -23,8 +23,8 @@ class DetailsViewModel @Inject constructor(
     private var getBooksJob: Job? = null
 
     init {
-        savedStateHandle.get<Int>("bookId")?.let { bookId ->
-            if (bookId != -1) {
+        savedStateHandle.get<Long>("bookId")?.let { bookId ->
+            if (bookId != -1L) {
                 getToc(bookId)
                 viewModelScope.launch {
                     bookUseCases.getBookById(bookId).also { book ->
@@ -39,7 +39,7 @@ class DetailsViewModel @Inject constructor(
         }
     }
 
-    private fun getToc(bookId: Int) {
+    private fun getToc(bookId: Long) {
         getBooksJob?.cancel()
         getBooksJob = bookUseCases.getTocs(bookId)
             .onEach {  navItemList ->
@@ -48,5 +48,15 @@ class DetailsViewModel @Inject constructor(
                 )
             }
             .launchIn(viewModelScope)
+    }
+    fun debug(bookId: Long, tocId: Long) {
+
+        bookUseCases.getSpines(bookId, tocId).onEach {
+            if(it.isNotEmpty()) {
+                _state.value = _state.value.copy(
+                    hover = it.first().location
+                )
+            }
+        }.launchIn(viewModelScope)
     }
 }

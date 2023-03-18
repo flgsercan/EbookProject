@@ -6,10 +6,7 @@ import com.example.zibook.feature_book.domain.repository.BookRepository
 class GetToc(
     private val repository: BookRepository
 ) {
-    suspend operator fun invoke(id: Int): TocItem? {
+    suspend operator fun invoke(id: Long): TocItem? {
         return repository.getTocById(id)
-    }
-    suspend operator fun invoke(url: String): TocItem? {
-        return repository.getTocByUrl(url)
     }
 }

@@ -7,7 +7,7 @@ class AddToc(
     private val repository: BookRepository
 ) {
 
-    suspend operator fun invoke(tocItem: TocItem) {
-        repository.insertToc(tocItem)
+    suspend operator fun invoke(tocItem: TocItem): Long {
+        return repository.insertToc(tocItem)
     }
 }

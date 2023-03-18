@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 class GetSpines(
     private val repository: BookRepository
 ) {
-    operator fun invoke(bookId: Int): Flow<List<SpineItem>> {
-        return repository.getSpine(bookId)
+    operator fun invoke(bookId: Long, tocId: Long): Flow<List<SpineItem>> {
+        return repository.getSpine(bookId, tocId)
     }
 }

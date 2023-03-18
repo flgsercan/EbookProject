@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "spine")
 data class SpineItem(
-    val location: String? = null,
-    val bookId:Int? = null,
-    @PrimaryKey val spineId : Int? = null
+    val location: String,
+    val bookId: Long,
+    val tocId: Long? = null,
+    @PrimaryKey val spineId : Long? = null
 )

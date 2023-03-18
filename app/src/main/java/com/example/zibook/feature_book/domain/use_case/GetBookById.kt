@@ -8,7 +8,7 @@ class GetBookById(
     private val repository: BookRepository
 ) {
 
-    suspend operator fun invoke(id: Int): Book? {
+    suspend operator fun invoke(id: Long): Book? {
         return repository.getBookById(id)
     }
 }

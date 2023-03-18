@@ -243,15 +243,15 @@ fun Navigation(navController: NavHostController) {
                         navArgument(
                             name = "bookId"
                         ) {
-                            type = NavType.IntType
-                            defaultValue = -1
+                            type = NavType.LongType
+                            defaultValue = -1L
                         }
                     )
                 ) {
                     DetailsScreen(navController)
                 }
                 composable(
-                    Screen.Reader.route + "?bookId={bookId}&chapterUrl={chapterUrl}",
+                    Screen.Reader.route + "?bookId={bookId}&chapterId={chapterId}",
                     enterTransition = {
                         slideIntoContainer(AnimatedContentScope.SlideDirection.Down,
                             animationSpec = tween(700))
@@ -264,14 +264,14 @@ fun Navigation(navController: NavHostController) {
                         navArgument(
                             name = "bookId"
                         ) {
-                            type = NavType.IntType
-                            defaultValue = -1
+                            type = NavType.LongType
+                            defaultValue = -1L
                         },
                         navArgument(
-                            name = "chapterUrl"
+                            name = "chapterId"
                         ) {
-                            type = NavType.StringType
-                            defaultValue = "nopath"
+                            type = NavType.LongType
+                            defaultValue = -1L
                         }
                     )
                 ) {

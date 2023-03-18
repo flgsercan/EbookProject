@@ -7,21 +7,21 @@ import kotlinx.coroutines.flow.Flow
 
 interface BookRepository {
 
-    fun getBooks(limit: Int, offset: Int): Flow<List<Book>>
-    suspend fun getBookById(id: Int): Book?
-    suspend fun insertBook(book: Book)
+    fun getBooks(limit: Int, id: Long): Flow<List<Book>>
+    suspend fun getBookById(id: Long): Book?
+    suspend fun insertBook(book: Book): Long
     suspend fun deleteBook(book: Book)
     suspend fun getBookByPath(path: String): Book?
 
-    fun getToc(bookId: Int): Flow<List<TocItem>>
-    suspend fun getTocById(id: Int): TocItem?
+    fun getToc(bookId: Long): Flow<List<TocItem>>
+    suspend fun getTocById(id: Long): TocItem?
     suspend fun getTocByUrl(url : String): TocItem?
-    suspend fun insertToc(tocItem: TocItem)
+    suspend fun insertToc(tocItem: TocItem): Long
     suspend fun deleteToc(tocItem: TocItem)
 
-    suspend fun insertSpine(spineItem: SpineItem)
-    fun getSpine(bookId: Int): Flow<List<SpineItem>>
-    suspend fun getSpineById(id: Int): SpineItem?
+    suspend fun insertSpine(spineItem: SpineItem): Long
+    fun getSpine(bookId: Long, tocId: Long): Flow<List<SpineItem>>
+    suspend fun getSpineById(id: Long): SpineItem?
     suspend fun getSpineByUrl(url : String): SpineItem?
     suspend fun deleteSpine(spineItem: SpineItem)
 }
